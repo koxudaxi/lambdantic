@@ -1,0 +1,20 @@
+site_name: lambdantic
+site_description: Pydantic model and lambda event handler for AWS Lambda
+theme:
+    name: 'material'
+    palette:
+      primary: 'light blue'
+      accent: 'light blue'
+
+markdown_extensions:
+  - codehilite
+
+repo_name: koxudaxi/lambdantic
+repo_url: https://github.com/koxudaxi/lambdantic
+
+google_analytics:
+    - 'UA-142130505-1'
+    - 'auto'
+
+nav:
+    - lambdantic: 'index.md'
