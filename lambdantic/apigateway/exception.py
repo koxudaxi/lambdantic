@@ -1,6 +1,6 @@
 from typing import Optional
 
-from lambdantic.apigateway import Response
+from .model import Response
 
 
 class LambdaError(Exception):

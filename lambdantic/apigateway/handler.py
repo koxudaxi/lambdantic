@@ -7,10 +7,11 @@ from inspect import _empty as empty, signature  # type: ignore
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
-from lambdantic.apigateway.exception import LambdaError
-from lambdantic.apigateway.model import HttpMethod, Request, Response
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import Field
+
+from .exception import LambdaError
+from .model import HttpMethod, Request, Response
 
 logger = getLogger(__name__)
 
