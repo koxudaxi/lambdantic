@@ -4,21 +4,18 @@ python:
 install:
 - pip install ".[all]"
 cache: pip
-
 script:
 - mypy lambdantic --disallow-untyped-defs --ignore-missing-imports
 - black lambdantic tests --check --skip-string-normalization
-- isort --recursive --check-only -w 88 --combine-as  --thirdparty lambdantic lambdantic tests -m 3 -tc
-#- pytest --cov=lambdantic tests
+- isort --recursive --check-only -w 88 --combine-as  --thirdparty lambdantic lambdantic
+  tests -m 3 -tc
 - cp README.md docs/index.md && mkdocs build --verbose --clean --strict
-#after_success:
-#- codecov
 deploy:
   - provider: pypi
     user: koxudaxi
     skip_existing: true
     password:
-      secure: Djmf29FcrmJvL5cIqZMGwEwoCua1k8bI/dKoNTLG1UXVSAeh5EKQU8g7LztXAnEszWtzzHgXtQ7p6uYnylltuZToagViuFjQZyTwCr0B1jEP7b2Z86vR29suZh8Sffmqh18SinOchRF+Ey7mnZv5/YADOWpCjCKw+vXKElrkXo+/vVh5sGQzPbzZ2m2fdcbmnF53NDzDMXW4HI8WngIQcH/d8HST6yFMK0+deoYZgyYjXxRQ+eha4K4I5OWOvUg8hDmcPyOsQhaMAHi6UxQqV42I7Sl7sKxpW7PK8kX+Smkq/CilK8VYZWavoGs1lzuuE0JKTsm0Scz2b2EnmvR2tOJesn/hgPdq4+/XMY/lPTVK1Npw5YYk5hm/lpniS1ZB9hhRoeIlQwSuR9qtSbNPIJHT9zFBRE4yQEygx7MAKaoO9uPsFrBmrHMrElL4d0jgLSbWs6MXH05TT3ng56DUiWUsl5+3LclrXdRc2OUMnX+wkCxCh2nBxagLU0DmZBT/17SN57KPia1NxnZjGZCHPXqinVBykPe+72F3asv9vmz0OhM5Y6t54UosPudmPVY+9KaPovHxOJAEpGkXM5/jDLVWB/GMap19dyiyG/Ytk4Pt8AmgthWMnabZqZQq3Ko0/aFvDLmPUt9DR7F4H50gkMP/VjAGGsgWFjXTX262Suc=
+      secure: vvjXeZ8zzU18f0Zo3qhFM7aKObkG9PKpAJi5AHedBTQlw9ZRo9Xs9HALxOIakHxQ+MTMHG4oCX3vpM2JJr3A4cLbkPZWwouFTwXlDq9h5gNDlNTiLoI5RF9a47JIjl8+rYEl/toTXDcIwFv2FDHpEMVzQZaSsTJXu9vKEgjOcLxvWP9BEAUSxyFA2HvqfQb4c9AunIirXEWkr+q3GjfT2/vyz5bY7SUMgN8iBJbLo73fjOSxhqBZpVic5o6/DkzCHHnJV61EVAkqRT431qcvwqSFkpBfgnSbyNvNROlEMOtqbGmMYPPbooLg9l0eQWyTB8uL97cP8SvG0S8niHZ05QBmWoMZB5VnOvvFltPEjgw4GHfPH9Im6K5oYsG4tDE914HxzQpt6yN5oraSJNXbn3P58kg0a4009Std9Lkvva8g+iMDPr0CxGN5Pw2OKPsvq03S1rGEEYoWonJPsoUDCaiGGqk+R2Ivzys1Vt/v8mY5U+BVG8jT51i3mP9NqlGHipKPnk+FOLGA9/BbNLHimd3729ci9nOO1VKRWj5/s2qx5EroVAR/f6Oyi/7J8PeDO5dzKNvyfIpmTcA1Q9mNmIO18wRRE8wut3c1rr1tZUYyhEJf5Hz86qp54GriQdZiVnygoWJzdoqp+C54O7NBTPKeP3GLdQU0gFEIQRWqNbw=
     on:
       tags: true
       python: '3.7'
@@ -26,8 +23,9 @@ deploy:
   - provider: pages
     skip_cleanup: true
     github_token:
-      secure: Agdof7kepiw3XPif2FeiOIH69pCb8MiR1hqUrzIybu4iT+hi+QsHQOtIoF+vT28jao1j7F9OPv2LGjrQr+slCdPxKE1/EC4kjzkmSw2M8Cru9I3LZNFJZ+efNKVASZ/HH/OKLA+naKTVs78YoD96o7sJ75VkAygcF9JnDbkGN2VlEGyCqi5iVt1MRnvEYh1zpLUbU4bOz1oZiQDhQwjd6xc/MpGrEzhuGgg+DBESh6pLQke3SqacuMs0XWyRAo+L8/DAw/EFxVF/iIV+btMe1amGaimJi7CAhJ2K8UuKPoS08rMROZUsHRVHzlEuEZ8FUYes0UCbfo2Kl+gXMh3CMtm+ZgefpIhWYW0Bgd2h0F5Nb/rsg9oCSPxRcdnZ6TwqagCMpsJGjdAIiHDCcOMMTCsyZvvTWITPPEhNfUY1C5Z52KJdRcQOwdJXiJxZPB9o/78f/x5THnZM3jPT6oEhV/Xzw/5uzg6PeaUT/w7wJBSqufUvV23/1EXXsaMI9Ju8wZgRgSgvwZ4s59RbuBJ3rEctW+iBtQtUsR2Fh/ly5Lcfmk4lqeS7aeWLBCcPCr0PqiXUyafBIYYVYUs5SgQ7Mav4AWLQgCtzZ1MV2tCHsXje+aHQ426LFaaZw6W56dFbz+43RAQJzD1qympLdSUqmmYJM5n5w7v0rX9N4HQgaEg=
+      secure: FkfEfpEsjcqGi6XN2fGwUZ1Q/10QaK+aZ8b9k4QcPQnQ8L0FZxcaaciAUkbfpEisH4qlzTqHtyVQ2ZTfmb3gr7/Hoh6bhpKyFRQMnW/UGY8+jhBFHQJ47gHRdxYx1pJ+C5y7uYTIMRGyKT/2p2bYTbP2quvyQOL7WOTOy/k3KHD/neATtA0BHlODDp0/LFMXdn1xWCYJjQxUzFQTDaCP0EX2NlKpQdsgFq7ZLkbRoxokcpJ6r9MoL+R3W53TUFTJukiAMf6QO7k1IreavztjZnXZJ5KTOZX3qOu1C8FKgn8CEx/9uIIfqYFNNzTw7vmia8MZAt6HRq1QwNDyhmr8K0+/Ptxv8yPFZQWjCw+0zzowuza4DNmSOpYzOzCDpmuYK3e1gLSSxWWWNnqwjKdqYKUwicpeWsLCcZc6mzDFAoCYiHwOq6H3NwEb+QD0aHXFbZA2B0ORqZCG/jY43qmao+Wm4yXhoqCNsxqwZpNcIp4AP+kUSNno9VQ0Qdvejr9oEiRes2IhOFxusTc5EkkQ2H1wwBP+3NEuo4wjUIRndnvpCDUx2V/J55WVHZ6LHNqnRHBm1d7PHy3yMw2eJWuWfzWdF24srAjoqcclFoyNrcL7EI+LNehGg39Hku3jL05ma7zuulmwtw51S1Cva84FZrtEC9jswG9xgTxeIdq5MmA=
     local_dir: site
     on:
       branch: master
       python: '3.7'
+
