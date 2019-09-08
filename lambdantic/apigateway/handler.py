@@ -8,11 +8,7 @@ from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Tuple, Type
 
 from lambdantic.apigateway.exception import LambdaError
-from lambdantic.apigateway.model import (
-    HttpMethod,
-    Request,
-    Response,
-)
+from lambdantic.apigateway.model import HttpMethod, Request, Response
 from pydantic import BaseConfig, BaseModel
 from pydantic.fields import Field
 
@@ -273,8 +269,9 @@ class Handler:
                     body_model,
                 )
             )
-            + path_parameter_count if path_parameter_model is None else 1
-            + event_context_argument_count
+            + path_parameter_count
+            if path_parameter_model is None
+            else 1 + event_context_argument_count
         )
 
         def inner(func: Callable) -> Callable[[Any], Response]:
@@ -331,9 +328,7 @@ class Handler:
                         arguments.append(context)
                     if path_parameter_model:
                         arguments.append(
-                            path_parameter_model.parse_obj(
-                                request.pathParameters
-                            )
+                            path_parameter_model.parse_obj(request.pathParameters)
                         )
                     else:
                         for (
