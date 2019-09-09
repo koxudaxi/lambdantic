@@ -74,6 +74,7 @@ def test_pets_get_path_parameter_model():
         'statusCode': 200,
     }
 
+
 def test_pets_get_invalid_id():
     assert handler(
         {
