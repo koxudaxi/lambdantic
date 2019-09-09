@@ -9,9 +9,11 @@ from inspect import _empty as empty, signature  # type: ignore
 from logging import getLogger
 from typing import Any, Callable, Dict, List, Optional, Type
 
+from lambdantic import dump_obj
 from pydantic import BaseModel, ValidationError
+from pydantic.fields import Shape
 
-from ..Fields import Field
+from ..fields import Field, FieldType
 from .exceptions import LambdaError
 from .models import HttpMethod, Request, Response
 
@@ -286,25 +288,17 @@ class Handler:
                 if path_parameter.annotation == empty:
                     fields[name] = None
                 else:
-                    fields[name] = Field(name, path_parameter.annotation)
-
-            response_list_model: Optional[Type[BaseModel]] = None
+                    fields[name] = FieldType.path_parameter.get_field(
+                        path_parameter.annotation, name=name
+                    )
 
             response_model = sig.return_annotation
-            if response_model and response_model != Response:
-                # field = Field('response', response_model)
-                # if field.shape != Shape.SINGLETON:
-                if (
-                    hasattr(response_model, '__args__') and response_model.__args__
-                ):  # List
-                    if issubclass(response_model.__args__[0], BaseModel):
-                        response_list_model = response_model.__args__[0]
-                if not response_list_model and not issubclass(
-                    response_model, BaseModel
-                ):
-                    raise Exception(
-                        f'response_model should be Type[BaseModel] or Type[List[BaseModel]]'
-                    )
+            if response_model:
+                response_field: Optional[Field] = FieldType.response.get_field(
+                    response_model
+                )
+            else:
+                response_field = None
 
             @wraps(func)
             def receive_params(
@@ -363,43 +357,27 @@ class Handler:
                             return Response(statusCode=HTTPStatus.BAD_REQUEST)
                     response: Any = func(*arguments)
 
-                    if response is None:
-                        return Response(statusCode=status_code)
-                    elif isinstance(response, Response):
+                    if response_field is None:
+                        if response is None:
+                            return Response(statusCode=status_code)
+                        else:
+                            return Response(statusCode=HTTPStatus.BAD_REQUEST)
+
+                    response, error = response_field.validate(response)
+
+                    if error:
+                        logger.warning(str(error))
+                        return Response(statusCode=HTTPStatus.BAD_REQUEST)
+                    if isinstance(response, Response):
                         return response
-                    elif response_list_model:
-                        if not isinstance(response, List):
-                            logger.error(
-                                f'response type should be {response_model}, but actual is {response}'
-                            )
-                            return Response(statusCode=HTTPStatus.INTERNAL_SERVER_ERROR)
-                        dumped_response = []
-                        for model in response:
-                            if isinstance(model, response_list_model):
-                                dumped_response.append(
-                                    model.dict(
-                                        skip_defaults=response_model_skip_defaults
-                                    )
-                                )
-                            else:
-                                logger.error(
-                                    f'response type should be {response_model},'
-                                    f' but actual is {response} in a list'
-                                )
-                                return Response(
-                                    statusCode=HTTPStatus.INTERNAL_SERVER_ERROR
-                                )
-                        return Response(
-                            body=json.dumps(dumped_response), statusCode=status_code
-                        )
-                    elif isinstance(response, response_model):
-                        return Response(
-                            body=response.json(
-                                skip_defaults=response_model_skip_defaults
-                            ),
-                            statusCode=status_code,
-                        )  # type: ignore
-                    raise Exception(f'Invalid response {response}')
+
+                    json_data = json.dumps(
+                        dump_obj(response, skip_defaults=response_model_skip_defaults)
+                    )
+                    return Response(
+                        body=json_data, statusCode=status_code
+                    )  # type: ignore
+
                 except LambdaError as e:
                     return e.response
                 except Exception as e:
