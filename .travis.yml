@@ -7,9 +7,11 @@ cache: pip
 script:
 - mypy lambdantic --disallow-untyped-defs --ignore-missing-imports
 - black lambdantic tests --check --skip-string-normalization
-- isort --recursive --check-only -w 88 --combine-as  --thirdparty lambdantic lambdantic
-  tests -m 3 -tc
+- isort --recursive --check-only -w 88 --combine-as  --thirdparty lambdantic lambdantic  tests -m 3 -tc
+- pytest --cov=lambdantic tests
 - cp README.md docs/index.md && mkdocs build --verbose --clean --strict
+after_success:
+- codecov
 deploy:
   - provider: pypi
     user: koxudaxi

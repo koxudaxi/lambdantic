@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 from typing import Optional
 
-from .model import Response
+from .models import Response
 
 
 class LambdaError(Exception):

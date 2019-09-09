@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 from enum import Enum
 from http import HTTPStatus
@@ -52,7 +54,7 @@ class Response(BaseModel):
 
 
 class Request(BaseModel):
-    resource: str  # "Resource path"
+    resource: Optional[str]  # "Resource path"
     path: str  # "Path parameter",
     httpMethod: HttpMethod  # "Incoming request's method name"
     headers: Optional[Dict[str, str]]  # {String containing incoming request headers}
