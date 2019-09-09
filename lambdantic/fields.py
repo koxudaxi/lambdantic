@@ -3,8 +3,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Optional, Type
 
-from pydantic import BaseConfig, BaseModel
-from pydantic.fields import Field as Field_, Shape
+from pydantic import BaseConfig
+from pydantic.fields import Field as Field_
 
 if TYPE_CHECKING:
     from pydantic.fields import ValidateReturn

@@ -55,6 +55,25 @@ def test_pets_get():
     }
 
 
+def test_pets_get_path_parameter_model():
+    assert handler(
+        {
+            'path': '/pets/1/abc',
+            'pathParameters': {},
+            'resource': '',
+            'requestContext': request_context_mock.dict(),
+            'httpMethod': 'GET',
+            'isBase64Encoded': False,
+        },
+        None,
+    ) == {
+        'body': '{"name": "dog", "age": 3, "pet_id": 1}',
+        'headers': {},
+        'isBase64Encoded': False,
+        'multiValueHeaders': {},
+        'statusCode': 200,
+    }
+
 def test_pets_get_invalid_id():
     assert handler(
         {
@@ -114,4 +133,25 @@ def test_pets_post_invalid_body():
         'isBase64Encoded': False,
         'multiValueHeaders': {},
         'statusCode': 400,
+    }
+
+
+def test_pets_delete():
+    assert handler(
+        {
+            'path': '/pets/1',
+            'pathParameters': {},
+            'resource': '',
+            'requestContext': request_context_mock.dict(),
+            'httpMethod': 'DELETE',
+            'body': '',
+            'isBase64Encoded': False,
+        },
+        None,
+    ) == {
+        'body': '',
+        'headers': {},
+        'isBase64Encoded': False,
+        'multiValueHeaders': {},
+        'statusCode': 200,
     }

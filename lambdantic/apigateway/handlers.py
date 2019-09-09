@@ -291,11 +291,9 @@ class Handler:
                     fields[name] = FieldType.path_parameter.get_field(
                         path_parameter.annotation, name=name
                     )
-
-            response_model = sig.return_annotation
-            if response_model:
+            if sig.return_annotation != empty:
                 response_field: Optional[Field] = FieldType.response.get_field(
-                    response_model
+                    sig.return_annotation
                 )
             else:
                 response_field = None
@@ -316,7 +314,7 @@ class Handler:
                         arguments.append(context)
                     if path_parameter_model:
                         arguments.append(
-                            path_parameter_model.parse_obj(request.pathParameters)
+                            path_parameter_model.parse_obj(path_parameters)
                         )
                     else:
                         for (
