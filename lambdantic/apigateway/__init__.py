@@ -1,1 +1,1 @@
-from .handler import Handler, Request, Response
+from .handlers import Handler, Request, Response

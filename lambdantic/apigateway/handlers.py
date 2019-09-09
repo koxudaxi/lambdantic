@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import re
 from collections import OrderedDict, defaultdict
@@ -5,26 +7,15 @@ from functools import wraps
 from http import HTTPStatus
 from inspect import _empty as empty, signature  # type: ignore
 from logging import getLogger
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type
+from typing import Any, Callable, Dict, List, Optional, Type
 
-from pydantic import BaseConfig, BaseModel
-from pydantic.fields import Field
+from pydantic import BaseModel, ValidationError
 
-from .exception import LambdaError
-from .model import HttpMethod, Request, Response
+from ..Fields import Field
+from .exceptions import LambdaError
+from .models import HttpMethod, Request, Response
 
 logger = getLogger(__name__)
-
-
-def get_validator(name: str, type_: Type) -> Callable:
-    field = Field(
-        name=name, type_=type_, class_validators=None, model_config=BaseConfig
-    )
-
-    def validate(value: Any) -> Tuple:
-        return field.validate(v=value, values={}, loc='')
-
-    return validate
 
 
 class Handler:
@@ -288,19 +279,21 @@ class Handler:
                 )
 
             base_parameter_count = self_count + event_context_argument_count
-            validators: Dict[str, Optional[Callable]] = {}
+            fields: Dict[str, Optional[Field]] = {}
             start_pos = base_parameter_count
             end_pos = path_parameter_count + base_parameter_count
             for name, path_parameter in list(sig.parameters.items())[start_pos:end_pos]:
                 if path_parameter.annotation == empty:
-                    validators[name] = None
+                    fields[name] = None
                 else:
-                    validators[name] = get_validator(name, path_parameter.annotation)
+                    fields[name] = Field(name, path_parameter.annotation)
 
             response_list_model: Optional[Type[BaseModel]] = None
 
             response_model = sig.return_annotation
             if response_model and response_model != Response:
+                # field = Field('response', response_model)
+                # if field.shape != Shape.SINGLETON:
                 if (
                     hasattr(response_model, '__args__') and response_model.__args__
                 ):  # List
@@ -336,9 +329,9 @@ class Handler:
                             path_parameter_name,
                             path_parameter_value,
                         ) in path_parameters.items():
-                            validator = validators[path_parameter_name]
-                            if validator:
-                                result, error = validator(path_parameter_value)
+                            field = fields[path_parameter_name]
+                            if field:
+                                result, error = field.validate(path_parameter_value)
                                 arguments.append(result)
                                 if error:
                                     logger.warning(
@@ -361,10 +354,13 @@ class Handler:
                             )
                         )
                     if body_model:
-                        arguments.append(
-                            body_model.parse_raw(request.decoded_body or '{}')
-                        )
-
+                        try:
+                            arguments.append(
+                                body_model.parse_raw(request.decoded_body or '{}')
+                            )
+                        except ValidationError as e:
+                            logger.warning(e)
+                            return Response(statusCode=HTTPStatus.BAD_REQUEST)
                     response: Any = func(*arguments)
 
                     if response is None:
