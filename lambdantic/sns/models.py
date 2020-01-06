@@ -12,32 +12,74 @@ class MessageTypes(Enum):
     SUBSCRIBE = 'SubscriptionConfirmation'
 
 
-class Base(BaseModel):
-    Type: MessageTypes
+class Notification(BaseModel):
+    Type: MessageTypes = MessageTypes.NOTIFICATION
     MessageId: UUID
-    TopicArn: str
+    Message: str
+    Subject: Optional[str]
     Timestamp: datetime
+    TopicArn: str
     SignatureVersion: str
     Signature: str
     SigningCertURL: str
-
-
-class Notification(Base):
-    Type: MessageTypes = MessageTypes.NOTIFICATION
-    Subject: Optional[str]
-    Message: str
     UnsubscribeURL: str
 
 
-class Confirmation(Base):
-    Token: MessageTypes
+class SubscriptionConfirmation(BaseModel):
+    Type: MessageTypes = MessageTypes.SUBSCRIBE
+    MessageId: UUID
     Message: str
+    Timestamp: datetime
+    TopicArn: str
+    SignatureVersion: str
+    Signature: str
+    SigningCertURL: str
+    Token: str
     SubscribeURL: str
 
 
-class SubscriptionConfirmation(Confirmation):
-    Type: MessageTypes = MessageTypes.SUBSCRIBE
-
-
-class UnsubscribeConfirmation(Confirmation):
+class UnsubscribeConfirmation(BaseModel):
     Type: MessageTypes = MessageTypes.UNSUBSCRIBE
+    MessageId: UUID
+    Message: str
+    Timestamp: datetime
+    TopicArn: str
+    SignatureVersion: str
+    Signature: str
+    SigningCertURL: str
+    Token: str
+    SubscribeURL: str
+
+
+class BackoffFunctions(Enum):
+    LINEAR = 'linear'
+    ARITHMETIC = 'arithmetic'
+    GEOMETRIC = 'geometric'
+    EXPONENTIAL = 'exponential'
+
+
+class RetryPolicy(BaseModel):
+    minDelayTarget: Optional[int]
+    maxDelayTarget: Optional[int]
+    numRetries: Optional[int]
+    numMaxDelayRetries: Optional[int]
+    backoffFunction: Optional[BackoffFunctions]
+
+
+class ThrottlePolicy(BaseModel):
+    maxReceivesPerSecond: Optional[int]
+
+
+class SubscriptionAttributes(BaseModel):
+    healthyRetryPolicy: RetryPolicy
+    throttlePolicy: Optional[ThrottlePolicy]
+
+
+class Http(BaseModel):
+    defaultHealthyRetryPolicy: RetryPolicy
+    defaultThrottlePolicy: Optional[ThrottlePolicy]
+    disableSubscriptionOverrides: Optional[bool]
+
+
+class TopicAttributes(BaseModel):
+    http: Http
