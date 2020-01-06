@@ -12,7 +12,7 @@ DATA = {
     "Timestamp": "2012-04-26T20:06:41.581Z",
     "SignatureVersion": "1",
     "Signature": "EXAMPLEHXgJm...",
-    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-f3ecfb7224c7233fe7bb5f59f96de52f.pem"
+    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/SimpleNotificationService-f3ecfb7224c7233fe7bb5f59f96de52f.pem",
 }
 
 
